@@ -18,27 +18,31 @@ const request = require('request');
 
 // const scrap = require('./scraping.js');
 //scrap le site lelscan pour récupérer le lien de l'image
-function image(req,res) {
-    request('https://lelscan-vf.cc/manga/vinland-saga/1/1', (err, resp, html)=>{
+function image(req ,res) {
+    //Utilisation d'une "Promesse" en Js les promesse permettent d'attendre le résultat d'un requete HTTP
+    // C'est la source de ton erreur ton context : "res" il mourait sans attendre la fin de la fonction de ton routeur l.57
+    return new Promise( function (resolve, reject){
+        request('https://lelscan-vf.cc/manga/vinland-saga/1/1', (err, resp, html) => {
+            if (!err && resp.statusCode == 200) {
+                console.log("Request was success ");
 
-        if(!err && resp.statusCode == 200){
-            console.log("Request was success ");
-            
-            // Define Cherio or $ Object 
-            const $ = cherio.load(html);
-    
-            $(".img-responsive.scan-page").each((index, image)=>{
-    
-                var img = $(image).attr('src');
-                var link = img;
-                console.log(link)
-                res.cookie('urlimage',link)
-            });
-    
-        }else{
-            console.log("Request Failed ");
-        }
-    
+                // Define Cherio or $ Object 
+                const $ = cherio.load(html);
+
+                $(".img-responsive.scan-page").each((index, image) => {
+                    var img = $(image).attr('src');
+                    var link = img;
+                    // resolve renvoie le résultat de la promesse si il n'y a pas eu d'erreurs
+                    resolve(link);
+                });
+
+            } else {
+                console.log("Request Failed ");
+                // reject permet d'informer à celui qui attend la fin de la promesse que quelque chose c'est pas bien passé
+                reject("Request Failed");
+            }
+
+        });
     });
 }
 
@@ -52,9 +56,13 @@ router.get('/style.css',function(req,res){
 });
 
 
-router.get('/lire.html', function(req,res){
-    console.log(req)
-    image(req,res) 
+router.get('/lire.html', async function(req,res){
+    // Ton routeur maintenant attends la promesse retourné par la fonction image grace au mot clefs await
+    // mais si tu utilise await dans une fonction tu l'a rend asynchrone donc il faut précisé avec le mot clef async qui précéde la declaration de ta fonction l.57
+    let url = await image(req,res);
+    if(url)
+        res.cookie("urlimage", url);
+    //pense à rajouter un comportement d'erreur si tu arrive au bout d'un chap ta requete enverra une erreur 404
     res.sendFile(path.join(__dirname+'/lire.html'));
 });
   
