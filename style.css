@@ -1,0 +1,31 @@
+body{
+	background-color:  #131313;
+	font-family: 'Roboto';
+	overflow: hidden;
+	color : white;
+}
+
+#form{
+	width: 50%;
+	margin-top: 10%;
+    margin-left: auto;
+	margin-right: auto;
+    background-color: red;
+    min-height: 10%;
+    text-align: center;
+}
+
+#url{
+    width: 100%;
+    padding: 6px 20px;
+    box-sizing: border-box;
+    border-radius: 30px;
+}
+
+button{
+	width: 30%;
+	height: 30%;
+	margin-top: 5%;
+    margin-left: auto;
+	margin-right: auto;
+}
